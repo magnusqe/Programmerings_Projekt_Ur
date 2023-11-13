@@ -9,9 +9,9 @@ public:
   void displayTitle();
 
 private:
-  void stopTheWatch();
+  uint8_t mState = 2;
+  bool    mBtnhasBeenPressed = false;
 
-private:
-  int mState = 1;
-  bool isBtnPressed = false;
+  long    mTime = 0;
+  long    mStartTime = 0;
 };

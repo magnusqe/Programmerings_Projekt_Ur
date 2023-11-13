@@ -12,6 +12,8 @@ void Application::init()
 
 void Application::handleInput(const uint8_t encoderValue, const bool btnPressed)
 {
+  getLCD()->setCursor(0, 1);
+  getLCD()->print("Cool Beans!");
   // Override in another file
 }
 
