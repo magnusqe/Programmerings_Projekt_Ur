@@ -1,7 +1,7 @@
 #pragma once
 #include "Application.h"
 
-class StopWatchApp : public Application
+class GuessTimeApp : public Application
 {
 public:
     void init();
@@ -14,4 +14,6 @@ private:
 
     long    mTime = 0;
     long    mStartTime = 0;
+
+    long    mTargetTime = 0;
 };
