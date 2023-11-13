@@ -1,26 +1,83 @@
-#include <Encoder.h>
+#include "Encoder.h"
 #include "rgb_lcd.h"
 
-rgb_lcd lcd;
-Encoder encoder(3, 4);
+#include "StopWatchApp.h"
 
+Encoder encoder(3, 4);
+rgb_lcd display;
+const uint8_t buttonPin = 2;
+const uint8_t beeperPin = 8;
+
+Application* app;
+
+const uint8_t stateCount = 2;
+Application* states[2] = {
+  new StopWatchApp(),
+  new Application()
+};
+
+bool menuSelect = true;
+
+int8_t currentState = 0;
 int encoderValue;
-const int stateCount = 5;
 
 void setup() 
 {
-  lcd.begin(16, 2);
-  lcd.setRGB(0, 0, 0);
-  lcd.print("ENCODER TEST:");
+  Serial.begin(9600);
+
+  display.begin(16, 2);
+  display.setRGB(255, 255, 255);
+  display.print("Scroll to select");
+
+  pinMode(buttonPin, INPUT);
+  pinMode(beeperPin, OUTPUT);
 }
 
-void loop() 
+void loop()
 {
-  encoderValue = (int)encoder.read() / 4;
+  if (menuSelect)
+  {
+    handleMenuSelection();
 
-  int currentState = encoderValue % stateCount;
+    menuSelect = false;
+  }
+  else
+  {
+    uint8_t encoderValue = 0;
+    bool btnPressed = digitalRead(buttonPin);
 
-  lcd.setCursor(0, 1);
-  lcd.print(currentState);
-  lcd.print(" ");
+    app->handleInput(encoderValue, btnPressed);
+  }
+}
+
+void handleMenuSelection()
+{
+  while (digitalRead(buttonPin) != HIGH)
+  {
+    encoderValue  = (int)encoder.read() / 4;
+
+    int selectedState = encoderValue % stateCount;
+    if (selectedState < 0)
+    {
+      selectedState += stateCount;
+    }
+
+    if (selectedState != currentState)
+    {
+      currentState = selectedState;
+
+      app = states[currentState];
+      app->setLCD(&display);
+      app->init();
+      app->displayTitle();
+
+      digitalWrite(beeperPin, HIGH);
+    }
+    else
+    {
+      digitalWrite(beeperPin, LOW);
+    }
+      
+    display.setRGB(app->getBackgroundColour().red, app->getBackgroundColour().green, app->getBackgroundColour().blue);
+  }
 }
