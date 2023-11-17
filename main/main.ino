@@ -3,6 +3,7 @@
 
 #include "StopWatchApp.h"
 #include "GuessTimeApp.h"
+#include "EggTimerApp.h"
 
 Encoder encoder(3, 4);
 rgb_lcd display;
@@ -11,11 +12,12 @@ const uint8_t beeperPin = 8;
 
 Application* app;
 
-const uint8_t stateCount = 3;
+const uint8_t stateCount = 4;
 Application* states[stateCount] = {
     new Application(),
     new StopWatchApp(),
-    new GuessTimeApp()
+    new GuessTimeApp(),
+    new EggTimerApp()
 };
 
 bool menuSelect = true;
@@ -69,6 +71,15 @@ void loop()
 
 void handleMenuSelection()
 {
+    currentState = 0;
+    encoder.write(0);
+
+    app = states[currentState];
+    app->setLCD(&display);
+
+    app->init();
+    app->displayTitle();
+
     while (digitalRead(buttonPin) != HIGH || btnHasBeenPressed || currentState == 0)
     {
         if (digitalRead(buttonPin) != HIGH)
