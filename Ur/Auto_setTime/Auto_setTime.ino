@@ -1,114 +1,60 @@
-
-#include <Wire.h>
-#include <I2C_RTC.h>
-
-//static DS1307 RTC;
-//static DS3231 RTC;
-//static PCF8523 RTC;
-static PCF8563 RTC;
-
-int hours,minutes,seconds,day,month,year;
-
-void setup()
+void ClockF() 
 {
-  Serial.begin(9600);
-  while (!Serial); // wait for serial port to connect. Needed for native USB
-  
-  RTC.begin();
 
-  Serial.print("Is Clock Running: ");
-  if (RTC.isRunning())
-  {
-    Serial.println("Yes");
-    switch (RTC.getWeek())
-    {
-        case 1: Serial.print("MON");
-        break;
-        case 2: Serial.print("TUE");
-        break;
-        case 3: Serial.print("WED");
-        break;
-        case 4: Serial.print("THU");
-        break;
-        case 5: Serial.print("FRI");
-        break;
-        case 6: Serial.print("SAT");
-        break;
-        case 7: Serial.print("SUN");
-        break;
-    }
-    Serial.print(" ");
-    
-    day=RTC.getDay();
-    month=RTC.getMonth();
-    year=RTC.getYear();
+    switch(Index) {
+    case 0:
+      SwitchScreen(EncoderFunc());
+      if (ButtonFunc("Clock",0)){
+        Index++;
+        ClockText = "Using Cock";
+        callClock = true;
+      }
+      break;
+    case 1:
 
-    if(day<10)
-      Serial.print("0");
+    lcd.begin(16, 3);
+    //lcd.print(clock.year);
+    //lcd.print(" ");
+    //lcd.print(clock.month);
+    //lcd.print(" ");
+    //lcd.print(clock.dayOfWeek);
+    //lcd.print(" ");
+    lcd.print((clock.hour += clock.minute / 60));
+    lcd.print(":");
+    lcd.print((clock.minute += clock.second / 60));
+    lcd.print(":");
+    lcd.print(((clock.second = clock.second % 60) += 1)-1);
 
-    Serial.print(RTC.getDay());
-    Serial.print("-");
-    if(month<10)
-      Serial.print("0");
-    Serial.print(RTC.getMonth());
-    Serial.print("-");
-    Serial.print(RTC.getYear());
-    Serial.print(" ");
-    
-    hours = RTC.getHours();
-    minutes = RTC.getMinutes(); 
-    seconds = RTC.getSeconds();
-    
-    if(hours<10)
-    {
-      Serial.print("0");
-        Serial.print(hours);
-        Serial.print(":");
+    if (ButtonFunc("Clock",0)){
+      ClockText = "Cock";
+      callClock = true;
+      Index = 0;
     }
-    if(minutes<10)
-    {
-      Serial.print("0");
-        Serial.print(minutes);
-        Serial.print(":");
-    }
-    if(seconds<10)
-    {
-      Serial.print("0");
-        Serial.print(RTC.getSeconds());
-        Serial.print("");
-    }
-    if (RTC.getHourMode() == CLOCK_H12)
-    {
-      switch (RTC.getMeridiem())
-      {
-        case HOUR_AM:
-        Serial.print(" AM");
-        break;
-        case HOUR_PM:
-        Serial.print(" PM");
-        break;
-      }   
-    }
-    Serial.println();
-    delay(1000);
-  }       
-  else
-  {
-    delay(250);
 
-    Serial.println("Setting Time");
-    RTC.setHourMode(CLOCK_H12); //Comment if RTC PCF8563
-    //RTC.setHourMode(CLOCK_H24);  
-    RTC.setDateTime(__DATE__, __TIME__);
-    RTC.updateWeek();           //Update Weekdaybased on new date.    
-    Serial.println("New Time Set");
-    Serial.print(__DATE__);
-    Serial.print(" ");
-    Serial.println(__TIME__);
-    RTC.startClock(); //Start the Clock;
+      break;
+    default:
+      break;
   }
-}
 
-void loop()
-{
+  delay(1000);
+
+  if(callClock == true)
+  {
+    int Index = 0;
+    
+    lcd.begin(16, 2);
+    lcd.print(ClockText);
+    Serial.println(state);
+    callStop = true;
+    callGuess = true;
+    callBoil = true;
+    callAlarm = true;
+    callClock = false;
+    colorR = 204;
+    colorG = 255;
+    colorB = 236;
+    
+    lcd.setRGB(colorR, colorG, colorB);
+  }
+
 }
