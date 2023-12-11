@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "rgb_lcd.h"
+#include "Encoder.h"
 
 struct colour
 {
@@ -15,17 +16,25 @@ public:
     Application();
 
     virtual void init();
-    virtual void handleInput(const uint8_t encoderValue, const bool btnPressed);
+    virtual void handleInput();
     virtual void displayTitle();
 
 public:
     colour getBackgroundColour();
     void  setBackgroundColour(const colour backgroundColour);
 
-    rgb_lcd*  getLCD();
-    void      setLCD(rgb_lcd* lcd);
+public:
+    int getEncoderValue();
+    int read();
+    void write(int value);
+    bool isButtonPressed();
+
+    void printNumber(long number);
+
+public:
+    static rgb_lcd* lcd;
+    static Encoder* encoder;
 
 private:
     colour mBackgroundColour;
-    rgb_lcd* mLCD;
 };

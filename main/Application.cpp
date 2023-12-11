@@ -1,8 +1,8 @@
 #include "Application.h"
+#include "PinMacros.h"
 
 Application::Application()
     : mBackgroundColour({255, 255, 255})
-    , mLCD(nullptr)
 { }
 
 void Application::init()
@@ -10,16 +10,16 @@ void Application::init()
     // Override in another file
 }
 
-void Application::handleInput(const uint8_t encoderValue, const bool btnPressed)
+void Application::handleInput()
 {
     // Override in another file
 }
 
 void Application::displayTitle()
 {
-    mLCD->clear();
-    mLCD->setCursor(0, 0);
-    mLCD->print("Scroll to select:");
+    lcd->clear();
+    lcd->setCursor(0, 0);
+    lcd->print("Scroll to select:");
 }
 
 colour Application::getBackgroundColour()
@@ -32,12 +32,31 @@ void Application::setBackgroundColour(const colour backgroundColour)
     mBackgroundColour = backgroundColour;
 }
 
-rgb_lcd* Application::getLCD()
+int Application::getEncoderValue()
 {
-    return mLCD;
+    return (int)encoder->read() / 4;
 }
 
-void Application::setLCD(rgb_lcd* lcd)
+int Application::read()
 {
-    mLCD = lcd;
+    return encoder->read();
+}
+
+void Application::write(int value)
+{
+    encoder->write(value);
+}
+
+bool Application::isButtonPressed()
+{
+    return (read() % 4 == 0 && !digitalRead(BUTTONPIN));
+}
+
+void Application::printNumber(long number)
+{
+    if (number < 10)
+    {
+        lcd->print("0");
+    }
+    lcd->print(number);
 }

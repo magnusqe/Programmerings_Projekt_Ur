@@ -1,28 +1,39 @@
-#include "Encoder.h"
+#include "EncoderButton.h"
 #include "rgb_lcd.h"
+#include "PinMacros.h"
+#include "DS1307.h"
 
 #include "StopWatchApp.h"
 #include "GuessTimeApp.h"
+//#include "TimerApp.h"
 #include "EggTimerApp.h"
+#include "WorldClockApp.h"
+#include "ChessClockApp.h"
 
-Encoder encoder(3, 4);
+#define Selma else
+
 rgb_lcd display;
-const uint8_t buttonPin = 2;
-const uint8_t beeperPin = 8;
+rgb_lcd* Application::lcd = &display;
 
+Encoder* Application::encoder = new Encoder(ENCODERPIN, ENCODERPIN + 1);
+Application encoder;
 Application* app;
 
-const uint8_t stateCount = 4;
-Application* states[stateCount] = {
+const uint8_t stateCount = 6;
+Application* states[stateCount] = 
+{
     new Application(),
     new StopWatchApp(),
     new GuessTimeApp(),
-    new EggTimerApp()
+    //new TimerApp(),
+    new EggTimerApp(),
+    new WorldClockApp(),
+    new ChessClockApp(),
 };
 
 bool menuSelect = true;
-long btnHoldTimer = millis();
 bool btnHasBeenPressed = true;
+long btnHoldTimer = millis();
 
 int8_t currentState = -1;
 int encoderValue;
@@ -32,9 +43,11 @@ void setup()
     Serial.begin(9600);
 
     display.begin(16, 2);
+    display.setCursor(0, 0);
+    display.write("Hello World");
 
-    pinMode(buttonPin, INPUT);
-    pinMode(beeperPin, OUTPUT);
+    pinMode(BUTTONPIN, INPUT);
+    pinMode(BEEPERPIN, OUTPUT);
 }
 
 void loop()
@@ -42,54 +55,31 @@ void loop()
     if (menuSelect)
     {
         handleMenuSelection();
-
-        menuSelect = false;
-        btnHoldTimer = millis();
     }
-    else
+    Selma
     {
-        uint8_t encoderValue = 0;
-        bool btnPressed = digitalRead(buttonPin);
-        app->handleInput(encoderValue, btnPressed && !btnHasBeenPressed);
+        app->handleInput();
 
-        if (btnPressed && !btnHasBeenPressed)
-        {
-            btnHasBeenPressed = true;
-        }
-        else if (!btnPressed)
-        {
-            btnHasBeenPressed = false;
-            btnHoldTimer = millis();
-        }
-        
-        if (millis() - btnHoldTimer > 1000)
-        {
-            menuSelect = true;
-        }
+        handleApplicationExit();
     }
 }
 
 void handleMenuSelection()
 {
-    currentState = 0;
     encoder.write(0);
 
-    app = states[currentState];
-    app->setLCD(&display);
-
+    app = states[0];
     app->init();
     app->displayTitle();
 
-    while (digitalRead(buttonPin) != HIGH || btnHasBeenPressed || currentState == 0)
+    while (encoder.isButtonPressed())
     {
-        if (digitalRead(buttonPin) != HIGH)
-        {    
-            btnHasBeenPressed = false;
-        }
+        // Do nothing
+    }
 
-        encoderValue  = (int)encoder.read() / 4;
-
-        int selectedState = encoderValue % stateCount;
+    while (!encoder.isButtonPressed() || currentState == 0)
+    {
+        int selectedState = encoder.getEncoderValue() % stateCount;
         if (selectedState < 0)
         {
             selectedState += stateCount;
@@ -100,20 +90,42 @@ void handleMenuSelection()
             currentState = selectedState;
 
             app = states[currentState];
-            app->setLCD(&display);
-
             app->init();
             app->displayTitle();
 
-            digitalWrite(beeperPin, HIGH);
-        }
-        else
-        {
-            digitalWrite(beeperPin, LOW);
+            digitalWrite(BEEPERPIN, HIGH);
+            delay(1);
+            digitalWrite(BEEPERPIN, LOW);
+            delay(15);
         }
         
         display.setRGB(app->getBackgroundColour().red, app->getBackgroundColour().green, app->getBackgroundColour().blue);
     }
 
-    btnHasBeenPressed = true;
+    while (encoder.isButtonPressed()) 
+    {
+        // Do nothing
+    }
+
+    menuSelect = false;
+    btnHoldTimer = millis();
+    encoder.write(0);
+}
+
+void handleApplicationExit()
+{
+    if (encoder.isButtonPressed() && !btnHasBeenPressed)
+    {
+        btnHasBeenPressed = true;
+    }
+    Selma if (!encoder.isButtonPressed())
+    {
+        btnHasBeenPressed = false;
+        btnHoldTimer = millis();
+    }
+    
+    if (millis() - btnHoldTimer > 1000)
+    {
+        menuSelect = true;
+    }
 }

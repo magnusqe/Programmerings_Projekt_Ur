@@ -3,24 +3,26 @@
 void GuessTimeApp::init()
 {
     setBackgroundColour({0, 255, 0});
-    randomSeed(micros());
+        
+    mState = 0;
+    mBtnhasBeenPressed = false;
 
+    mTime = 0;
+    mStartTime = 0;
+    
+    randomSeed(micros());
     mTargetTime = 5000 + random() % 5000;
 }
 
-void GuessTimeApp::handleInput(const uint8_t encoderValue, const bool btnPressed)
+void GuessTimeApp::handleInput()
 {
-    rgb_lcd* lcd = getLCD();
-
-    long displayedTime;
-
-    if (btnPressed && !mBtnhasBeenPressed)
+    if (isButtonPressed() && !mBtnhasBeenPressed)
     {
         mState = (mState + 1) % 3;
 
         mBtnhasBeenPressed = true;
     }
-    else if (!btnPressed)
+    else if (!isButtonPressed())
     {
         mBtnhasBeenPressed = false;
     }
@@ -37,6 +39,9 @@ void GuessTimeApp::handleInput(const uint8_t encoderValue, const bool btnPressed
         lcd->print(mTargetTime / 100 % 10);
         lcd->print(mTargetTime % 10);
         lcd->print("        ");
+
+        lcd->setCursor(0, 1);
+        lcd->print("0.00 s");
         break;
     case 1: // Run the hidden timer
         mTime = millis();
@@ -51,7 +56,7 @@ void GuessTimeApp::handleInput(const uint8_t encoderValue, const bool btnPressed
         lcd->print(".");
         lcd->print(finalTime / 100 % 10);
         lcd->print(finalTime % 10);
-        lcd->print("        ");
+        lcd->print(" s       ");
 
         mTargetTime = 5000 + random() % 5000;
         break;
@@ -60,7 +65,7 @@ void GuessTimeApp::handleInput(const uint8_t encoderValue, const bool btnPressed
 
 void GuessTimeApp::displayTitle()
 {
-    getLCD()->clear();
-    getLCD()->setCursor(0, 0);
-    getLCD()->print("Guess the time!");
+    lcd->clear();
+    lcd->setCursor(0, 0);
+    lcd->print("Guess the time!");
 }
