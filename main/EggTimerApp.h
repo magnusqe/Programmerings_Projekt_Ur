@@ -5,9 +5,13 @@ class EggTimerApp : public Application
 {
 public:
     void init();
-    void handleInput(const uint8_t encoderValue, const bool btnPressed);
+    void handleInput();
     void displayTitle();
 
 private:
-    
+    bool mRunning;
+
+    unsigned long mTime;
+    unsigned long mRemainingTime;
+    unsigned long mStartTime;
 };

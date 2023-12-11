@@ -3,24 +3,28 @@
 void StopWatchApp::init()
 {
     setBackgroundColour({0, 0, 255});
+
+    mState = 0;
+    mBtnhasBeenPressed = false;
+
+    mTime = 0;
+    mStartTime = 0;
 }
 
-void StopWatchApp::handleInput(const uint8_t encoderValue, const bool btnPressed)
+void StopWatchApp::handleInput()
 {
-    rgb_lcd* lcd = getLCD();
-
-    long displayedTime;
-
-    if (btnPressed && !mBtnhasBeenPressed)
+    if (isButtonPressed() && !mBtnhasBeenPressed)
     {
         mState = (mState + 1) % 3;
 
         mBtnhasBeenPressed = true;
     }
-    else if (!btnPressed)
+    else if (!isButtonPressed())
     {
         mBtnhasBeenPressed = false;
     }
+
+    long displayedTime;
 
     switch (mState)
     {
@@ -47,7 +51,7 @@ void StopWatchApp::handleInput(const uint8_t encoderValue, const bool btnPressed
 
 void StopWatchApp::displayTitle()
 {
-    getLCD()->clear();
-    getLCD()->setCursor(0, 0);
-    getLCD()->print("Stopwatch!");
+    lcd->clear();
+    lcd->setCursor(0, 0);
+    lcd->print("Stopwatch!");
 }

@@ -5,15 +5,15 @@ class GuessTimeApp : public Application
 {
 public:
     void init();
-    void handleInput(const uint8_t encoderValue, const bool btnPressed);
+    void handleInput();
     void displayTitle();
 
 private:
-    uint8_t mState = 2;
-    bool    mBtnhasBeenPressed = false;
+    uint8_t mState;
+    bool    mBtnhasBeenPressed;
 
-    long    mTime = 0;
-    long    mStartTime = 0;
+    long    mTime;
+    long    mStartTime;
 
-    long    mTargetTime = 0;
+    long    mTargetTime;
 };
