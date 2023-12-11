@@ -19,9 +19,7 @@ public:
     virtual void handleInput();
     virtual void displayTitle();
 
-public:
-    colour getBackgroundColour();
-    void  setBackgroundColour(const colour backgroundColour);
+    void setBackgroundColour(colour backgroundColour);
 
 public:
     int getEncoderValue();

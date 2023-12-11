@@ -5,7 +5,7 @@
 
 #include "StopWatchApp.h"
 #include "GuessTimeApp.h"
-//#include "TimerApp.h"
+//#include "TimerApp.h" <-- This doesn't work with the 5.0 lcd for some reason \(^-^)/
 #include "EggTimerApp.h"
 #include "WorldClockApp.h"
 #include "ChessClockApp.h"
@@ -35,17 +35,9 @@ bool menuSelect = true;
 bool btnHasBeenPressed = true;
 long btnHoldTimer = millis();
 
-int8_t currentState = -1;
-int encoderValue;
-
 void setup() 
 {
-    Serial.begin(9600);
-
     display.begin(16, 2);
-    display.setCursor(0, 0);
-    display.write("Hello World");
-
     pinMode(BUTTONPIN, INPUT);
     pinMode(BEEPERPIN, OUTPUT);
 }
@@ -66,15 +58,14 @@ void loop()
 
 void handleMenuSelection()
 {
-    encoder.write(0);
+    uint8_t currentState = 0;
 
-    app = states[0];
-    app->init();
-    app->displayTitle();
+    encoder.write(0);
+    setState(currentState);
 
     while (encoder.isButtonPressed())
     {
-        // Do nothing
+        // Wait for button to be realesed
     }
 
     while (!encoder.isButtonPressed() || currentState == 0)
@@ -88,23 +79,18 @@ void handleMenuSelection()
         if (selectedState != currentState)
         {
             currentState = selectedState;
-
-            app = states[currentState];
-            app->init();
-            app->displayTitle();
+            setState(currentState);
 
             digitalWrite(BEEPERPIN, HIGH);
             delay(1);
             digitalWrite(BEEPERPIN, LOW);
             delay(15);
         }
-        
-        display.setRGB(app->getBackgroundColour().red, app->getBackgroundColour().green, app->getBackgroundColour().blue);
     }
 
     while (encoder.isButtonPressed()) 
     {
-        // Do nothing
+        // Wait for button to be realesed
     }
 
     menuSelect = false;
@@ -128,4 +114,11 @@ void handleApplicationExit()
     {
         menuSelect = true;
     }
+}
+
+void setState(uint8_t index)
+{
+    app = states[index];
+    app->init();
+    app->displayTitle();
 }

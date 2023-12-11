@@ -15,21 +15,18 @@ void Application::handleInput()
     // Override in another file
 }
 
+void Application::setBackgroundColour(colour backgroundColour)
+{
+    mBackgroundColour = backgroundColour;
+}
+
 void Application::displayTitle()
 {
     lcd->clear();
     lcd->setCursor(0, 0);
     lcd->print("Scroll to select:");
-}
 
-colour Application::getBackgroundColour()
-{
-    return mBackgroundColour;
-}
-
-void Application::setBackgroundColour(const colour backgroundColour)
-{
-    mBackgroundColour = backgroundColour;
+    lcd->setRGB(mBackgroundColour.red, mBackgroundColour.green, mBackgroundColour.blue);
 }
 
 int Application::getEncoderValue()
